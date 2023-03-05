@@ -5,6 +5,7 @@ import random
 
 class Minesweeper:
     def __init__(self, dimensions):
+        self.field_visual = None
         self.neighbors_looped = []
         self.neighbor_to_loop = []
         self.neighbor_clicked = []
@@ -14,8 +15,12 @@ class Minesweeper:
         self.dimensions = dimensions
         self.generate_field()
         self.generate_bombs()
+        self.generate_visual_field()
         self.calculate_bombs_in_neighbors()
         self.print_field()
+        self.print_neighbor_bombs()
+        self.print_visual_field()
+        self.game_status = True
 
     def generate_field(self):
         self.field = [[0 for i in range(self.dimensions)] for i in range(self.dimensions)]
@@ -24,14 +29,40 @@ class Minesweeper:
 
     def generate_bombs(self):
         bombs = []
-        for i in range(self.dimensions):
-            bombs.append((random.choice(range(self.dimensions)), random.choice(range(self.dimensions))))
-            # print(bombs[i])
-            self.field[bombs[i][0]][bombs[i][1]] = 1
+        while len(bombs) < self.dimensions:
+            bomb_pos = (random.choice(range(self.dimensions)), random.choice(range(self.dimensions)))
+            if bomb_pos not in bombs:
+                bombs.append(bomb_pos)
+
+        for bomb in bombs:
+            self.field[bomb[0]][bomb[1]] = 1
+            
+    def generate_visual_field(self):
+        self.field_visual = [['X' for i in range(self.dimensions)] for j in range(self.dimensions)]
+
+    def print_visual_field(self):
+        for i in range(len(self.field_visual)):
+            print(self.field_visual[i])
+
+        print()
 
     def print_field(self):
         for i in range(len(self.field)):
             print(self.field[i])
+
+        print()
+
+    def change_visual_field(self, position):
+        row = position[0]
+        column = position[1]
+        if self.field[row][column]:  # is bomb
+            self.field_visual[row][column] = 'B'
+            return
+        value = self.neighbor_bombs[row][column]
+        if value == 0:
+            self.field_visual[row][column] = ' '
+        else:
+            self.field_visual[row][column] = str(value)
 
     def get_neighbor_positions(self, row_num, column_num):
         positions = {(max(0, row_num - 1), max(0, column_num - 1)),
@@ -46,7 +77,6 @@ class Minesweeper:
         return positions
 
     def calculate_bombs_in_neighbors(self):
-
         self.neighbor_bombs = []
         for row in range(self.dimensions):
             self.neighbor_bombs.append([])
@@ -63,6 +93,14 @@ class Minesweeper:
     def print_neighbor_bombs(self):
         for i in range(len(self.neighbor_bombs)):
             print(self.neighbor_bombs[i])
+
+        print()
+
+    def lose_game(self):
+        for row in range(self.dimensions):
+            for column in range(self.dimensions):
+                self.change_visual_field((row, column))
+        self.game_status = False
 
     def check_clicked_space(self, clicked: tuple):
         if clicked not in self.neighbor_clicked:
@@ -81,8 +119,10 @@ class Minesweeper:
 
                     if self.field[row][column] == 1:
                         print('bomb')
+                        self.lose_game()
                     elif self.neighbor_bombs[row][column] > 0:
-                        print(self.neighbor_bombs[row][column])  # working
+                        # print('direct adjacent')  # working
+                        self.change_visual_field(pos)
                     else:
                         neighbors_pos = self.get_neighbor_positions(row, column)
                         neighbors_pos = [item for item in neighbors_pos if item != pos and item not in self.neighbors_looped and item not in self.neighbor_clicked]
@@ -99,14 +139,19 @@ class Minesweeper:
                     # print(neighbors)
                 else:
                     if len(self.neighbor_to_loop) == 0:
+                        for pos in self.neighbor_clicked:
+                            self.change_visual_field(pos)
                         break
 
 
 if __name__ == "__main__":
     game = Minesweeper(5)
 
-    # check if bomb and show numbers
-    click = (1, 2)
-    game.check_clicked_space(click)
+    while game.game_status:
+        input_row = int(input('insert row: '))
+        input_column = int(input('insert column '))
+        click = (input_row, input_column)
+        game.check_clicked_space(click)
+        game.print_visual_field()
 
-# prin;t('show items: ', neighbor_clicked)
+    print('show items: ', game.neighbor_clicked)
