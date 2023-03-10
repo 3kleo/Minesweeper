@@ -1,5 +1,5 @@
-# from tkinter import *
-# from tkinter import ttk
+import tkinter as tk
+from tkinter import ttk
 import random
 
 
@@ -144,14 +144,49 @@ class Minesweeper:
                         break
 
 
+def print_message(msg):
+    print(msg)
+
+
 if __name__ == "__main__":
-    game = Minesweeper(5)
+    # game = Minesweeper(5)
+    root = tk.Tk()
 
-    while game.game_status:
-        input_row = int(input('insert row: '))
-        input_column = int(input('insert column '))
-        click = (input_row, input_column)
-        game.check_clicked_space(click)
-        game.print_visual_field()
+    root.geometry('600x700')
+    root.title("Minesweeper")
+    root.resizable(False, False)
+    top_bar = tk.Frame(
+        root,
+        bg='blue',
+        width='600',
+        height='100'
+    )
+    top_bar.place(x=0, y=0)
 
-    print('show items: ', game.neighbor_clicked)
+    game_area = tk.Frame(
+        root,
+        bg='green',
+        width='600',
+        height='600'
+    )
+    game_area.place(x=0, y=100)
+
+    # btn = tk.Button(
+    #     root,
+    #     bg='black',
+    #     text='test',
+    #     command=lambda: print_message('abc')
+    # )
+    # btn.place(x='20', y='20')
+    tk.mainloop()
+
+    # game = Minesweeper(5)
+    #
+    # while game.game_status:
+    #     input_row = int(input('insert row: '))
+    #     input_column = int(input('insert column '))
+    #     click = (input_row, input_column)
+    #     game.check_clicked_space(click)
+    #     game.print_visual_field()
+    #
+    # print('show items: ', game.neighbor_clicked)
