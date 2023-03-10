@@ -5,6 +5,8 @@ import random
 
 class Minesweeper:
     def __init__(self, dimensions):
+        self.game_area = None
+        self.top_bar = None
         self.field_visual = None
         self.neighbors_looped = []
         self.neighbor_to_loop = []
@@ -21,11 +23,31 @@ class Minesweeper:
         self.print_neighbor_bombs()
         self.print_visual_field()
         self.game_status = True
+        self.initialize_gui()
 
     def generate_field(self):
         self.field = [[0 for i in range(self.dimensions)] for i in range(self.dimensions)]
         self.field_l = [[chr(97 + i + j) for i in range(self.dimensions)] for j in
                         range(0, (self.dimensions ** 2), self.dimensions)]
+
+        self.root = tk.Tk()
+        self.root.geometry('600x700')
+        self.root.title("Minesweeper")
+        self.root.resizable(False, False)
+        self.top_bar = tk.Frame(
+            self.root,
+            bg='blue',
+            width='600',
+            height='100'
+        )
+        self.top_bar.place(x=0, y=0)
+        self.game_area = tk.Frame(
+            self.root,
+            bg='green',
+            width='600',
+            height='600'
+        )
+        self.game_area.place(x=0, y=100)
 
     def generate_bombs(self):
         bombs = []
@@ -143,42 +165,60 @@ class Minesweeper:
                             self.change_visual_field(pos)
                         break
 
+    def initialize_gui(self):
+        tk.mainloop()
+
+
+class Slot:
+    def __init__(self, x_pos, y_pos):
+        self.x_pos = x_pos
+        self.y_pos = y_pos
+
+    def create_button(self):
+        btn = tk.Button(
+            game_area,
+            bg='red',
+            command=lambda: print_message('abc')
+            )
+        btn.place(x='20', y='20', height='30', width='60')
+        btn.config(text='abcd')
+
 
 def print_message(msg):
     print(msg)
 
 
 if __name__ == "__main__":
-    # game = Minesweeper(5)
-    root = tk.Tk()
+    game = Minesweeper(5)
+    # root = tk.Tk()
 
-    root.geometry('600x700')
-    root.title("Minesweeper")
-    root.resizable(False, False)
-    top_bar = tk.Frame(
-        root,
-        bg='blue',
-        width='600',
-        height='100'
-    )
-    top_bar.place(x=0, y=0)
-
-    game_area = tk.Frame(
-        root,
-        bg='green',
-        width='600',
-        height='600'
-    )
-    game_area.place(x=0, y=100)
-
-    # btn = tk.Button(
+    # root.geometry('600x700')
+    # root.title("Minesweeper")
+    # root.resizable(False, False)
+    # top_bar = tk.Frame(
     #     root,
-    #     bg='black',
-    #     text='test',
+    #     bg='blue',
+    #     width='600',
+    #     height='100'
+    # )
+    # top_bar.place(x=0, y=0)
+    #
+    # game_area = tk.Frame(
+    #     root,
+    #     bg='green',
+    #     width='600',
+    #     height='600'
+    # )
+    # game_area.place(x=0, y=100)
+    #
+    # btn = tk.Button(
+    #     game_area,
+    #     bg='red',
     #     command=lambda: print_message('abc')
     # )
-    # btn.place(x='20', y='20')
-    tk.mainloop()
+    # btn.place(x='20', y='20', height='30', width='60')
+    # btn.config(text='abcd')
+    # tk.mainloop()
 
     # game = Minesweeper(5)
     #
