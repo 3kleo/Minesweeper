@@ -153,6 +153,9 @@ class Minesweeper:
                     elif self.neighbor_bombs[row][column] > 0:
                         # print('direct adjacent')  # working
                         self.change_visual_field(pos)
+                        cell = self.cells[row][column]
+                        cell.change_color()  # (row, column)
+                        cell.write_on_cell()
                     else:
                         neighbors_pos = self.get_neighbor_positions(row, column)
                         neighbors_pos = [item for item in neighbors_pos if
@@ -180,10 +183,10 @@ class Minesweeper:
         for row in range(self.dimensions):
             self.cells.append([])
             for column in range(self.dimensions):
-                x_pos = 100 + (60 * (column + 1)) 
+                x_pos = 100 + (60 * (column + 1))
                 y_pos = 30 + (60 * (row + 1))
                 neighbors = self.neighbor_bombs[row][column]
-                is_mine = self.is_mine()
+                is_mine = self.is_mine(row, column)
                 self.cells[row].append(
                     Slot(self.game_area,
                          x_pos,
@@ -206,7 +209,6 @@ class Slot:
         self.row = row
         self.column = column
         self.create_button()
-        # self.cell = None
         self.neighbors = neighbors
         self.is_mine = is_mine
         self.is_clicked = None
@@ -219,7 +221,7 @@ class Slot:
                              borderwidth=1,
                              relief="solid")
         self.cell.place(x=self.x_pos, y=self.y_pos)
-        self.cell.bind("<Button-1>", self.change_color)
+        self.cell.bind("<Button-1>", self.button_click)
         self.cell.bind("<Button-2>", self.write_on_cell)
 
     def change_color(self, _event=None):
@@ -237,6 +239,13 @@ class Slot:
         text_x = self.x_pos + (50 / 3.5)
         text_y = self.y_pos + (50 / 4)
         text.place(x=text_x, y=text_y)
+
+    def button_click(self, _event):
+        if self.is_mine:
+            print('game losr')
+            return
+        # .check_clicked_space((self.row, self.column))
+
 
         # tk.Button(
         #     self.place,
