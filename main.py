@@ -147,15 +147,18 @@ class Minesweeper:
                     row = pos[0]
                     column = pos[1]
 
-                    if self.is_mine():
+                    if self.is_mine(row, column):
                         print('bomb')
+                        cell = self.cells[row][column]
+                        cell.change_color()  # (row, column)
+                        cell.write_on_cell('B')
                         self.lose_game()
+                        return
                     elif self.neighbor_bombs[row][column] > 0:
-                        # print('direct adjacent')  # working
                         self.change_visual_field(pos)
                         cell = self.cells[row][column]
                         cell.change_color()  # (row, column)
-                        cell.write_on_cell()
+                        cell.write_on_cell(self.neighbor_bombs[row][column])
                     else:
                         neighbors_pos = self.get_neighbor_positions(row, column)
                         neighbors_pos = [item for item in neighbors_pos if
@@ -176,6 +179,9 @@ class Minesweeper:
                     if len(self.neighbor_to_loop) == 0:
                         for pos in self.neighbor_clicked:
                             self.change_visual_field(pos)
+                            cell = self.cells[pos[0]][pos[1]]
+                            cell.change_color()
+                            cell.write_on_cell(self.neighbor_bombs[pos[0]][pos[1]])
                         break
 
     def create_cells(self):
@@ -185,33 +191,37 @@ class Minesweeper:
             for column in range(self.dimensions):
                 x_pos = 100 + (60 * (column + 1))
                 y_pos = 30 + (60 * (row + 1))
-                neighbors = self.neighbor_bombs[row][column]
-                is_mine = self.is_mine(row, column)
+                # neighbors = self.neighbor_bombs[row][column]
+                # is_mine = self.is_mine(row, column)
                 self.cells[row].append(
                     Slot(self.game_area,
                          x_pos,
                          y_pos,
                          row,
                          column,
-                         neighbors,
-                         is_mine)
+                         self) #,
+                         # neighbors,
+                         # is_mine,
+                         # )
                 )
 
     def initialize_gui(self):
         tk.mainloop()
 
+    def get_neighbor_clicked(self):
+        return self.neighbor_clicked
+
 
 class Slot:
-    def __init__(self, place, x_pos, y_pos, row, column, neighbors, is_mine):
+    def __init__(self, place, x_pos, y_pos, row, column, minesweeper): #, neighbors, is_mine, ):
         self.place = place
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.row = row
         self.column = column
         self.create_button()
-        self.neighbors = neighbors
-        self.is_mine = is_mine
         self.is_clicked = None
+        self.minesweeper = minesweeper
 
     def create_button(self):
         self.cell = tk.Frame(self.place,
@@ -222,29 +232,40 @@ class Slot:
                              relief="solid")
         self.cell.place(x=self.x_pos, y=self.y_pos)
         self.cell.bind("<Button-1>", self.button_click)
-        self.cell.bind("<Button-2>", self.write_on_cell)
+        self.cell.bind("<Button-3>", self.write_on_cell)
 
     def change_color(self, _event=None):
         self.cell['bg'] = 'blue'
 
-    def write_on_cell(self, _event=None):
+    def write_on_cell(self, cell_text):#, _event=None):
         var = tk.StringVar()
+        # if cell_text.char == '??': #-- is None:
+        #     cell_text = "!"
         text = tk.Label(self.place,
                         textvariable=var,
                         width=1,
                         height=1,
                         bg='yellow',
                         font=("Arial", 15))
-        var.set(f'{self.neighbors}')
+        var.set(f'{cell_text}')
         text_x = self.x_pos + (50 / 3.5)
         text_y = self.y_pos + (50 / 4)
         text.place(x=text_x, y=text_y)
 
     def button_click(self, _event):
-        if self.is_mine:
-            print('game losr')
-            return
-        # .check_clicked_space((self.row, self.column))
+        # if self.is_clicked:
+        #     return
+        # else:
+        #     self.minesweeper.check_clicked_space((self.row, self.column))
+        self.minesweeper.check_clicked_space((self.row, self.column))
+        # if self.is_mine:
+        #     print('game lost')
+        #     return
+        # elif (self.row, self.column) in self.minesweeper.get_neighbor_clicked():
+        #     print('already clicked')
+        # else:
+        #     self.minesweeper.check_clicked_space((self.row, self.column))
+        #     self.change_color()
 
 
         # tk.Button(
@@ -262,6 +283,8 @@ def print_message(msg):
 
 if __name__ == "__main__":
     game = Minesweeper(5)
+
+    # print('test')
 
     # root = tk.Tk()
     #
