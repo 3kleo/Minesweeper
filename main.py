@@ -237,10 +237,10 @@ class Slot:
     def change_color(self, _event=None):
         self.cell['bg'] = 'blue'
 
-    def write_on_cell(self, cell_text):#, _event=None):
+    def write_on_cell(self, cell_text):
         var = tk.StringVar()
-        # if cell_text.char == '??': #-- is None:
-        #     cell_text = "!"
+        if type(cell_text) != int and cell_text != 'B':
+            cell_text = "!"
         text = tk.Label(self.place,
                         textvariable=var,
                         width=1,
