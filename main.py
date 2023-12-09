@@ -37,20 +37,41 @@ class Minesweeper:
         self.root.geometry(f'{settings.WIDTH}x{settings.HEIGHT}')
         self.root.title("Minesweeper")
         self.root.resizable(False, False)
+
+        self.generate_objects()
+
+    def generate_objects(self):
         self.top_bar = tk.Frame(
             self.root,
             bg='blue',
             width=f'{settings.WIDTH}',
-            height='100'
+            height=f'{settings.HEIGHT - settings.GAME_HEIGHT}'
         )
         self.top_bar.place(x=0, y=0)
+
+        self.top_text = tk.Label(
+            self.top_bar,
+            text="Minesweeper",
+            bg='blue',
+            font=("Arial", 25)
+        )
+        self.top_text.place(x=settings.WIDTH / 2, y=50, anchor="center")
+
         self.game_area = tk.Frame(
             self.root,
             bg='green',
-            width=f'{settings.WIDTH}',
-            height='600'
+            width=f'{settings.GAME_WIDTH}',
+            height=f'{settings.GAME_HEIGHT}'
         )
-        self.game_area.place(x=0, y=100)
+        self.game_area.place(x=0, y=(settings.HEIGHT - settings.GAME_HEIGHT))
+
+        # self.reset_button = tk.Button(
+        #     self.game_area,
+        #     text='Reset',
+        #     command=self.generate_objects)
+        # self.reset_button.place(
+        #     x=100, #settings.WIDTH / 10,
+        #     y=100)
 
     def generate_bombs(self):
         bombs = []
@@ -128,6 +149,16 @@ class Minesweeper:
                 self.change_visual_field((row, column))
         self.game_status = False
 
+        self.game_lost = tk.Label(
+            self.game_area,
+            text="You lose!",
+            bg='white',
+            font=("Arial", 60)
+        )
+        self.game_lost.place(x=settings.WIDTH / 2,
+                             y=settings.HEIGHT / 2,
+                             anchor="center")
+
     def is_mine(self, row, column):
         value = self.field[row][column]
         return True if value == 1 else False
@@ -189,10 +220,15 @@ class Minesweeper:
         for row in range(self.dimensions):
             self.cells.append([])
             for column in range(self.dimensions):
-                x_pos = 100 + (60 * (column + 1))
-                y_pos = 30 + (60 * (row + 1))
-                # neighbors = self.neighbor_bombs[row][column]
-                # is_mine = self.is_mine(row, column)
+                total_width = self.dimensions * settings.BOX_SIZE + (self.dimensions - 1) * settings.GAP_SIZE
+                total_height = self.dimensions * settings.BOX_SIZE + (self.dimensions - 1) * settings.GAP_SIZE
+
+                start_x = (settings.GAME_WIDTH - total_width) // 2
+                start_y = (settings.GAME_HEIGHT - total_height) // 2
+
+                x_pos = start_x + column * (settings.BOX_SIZE + settings.GAP_SIZE)
+                y_pos = start_y + row * (settings.BOX_SIZE + settings.GAP_SIZE)
+
                 self.cells[row].append(
                     Slot(self.game_area,
                          x_pos,
@@ -225,8 +261,8 @@ class Slot:
 
     def create_button(self):
         self.cell = tk.Frame(self.place,
-                             width=50,
-                             height=50,
+                             width=settings.BOX_SIZE,
+                             height=settings.BOX_SIZE,
                              background='yellow',
                              borderwidth=1,
                              relief="solid")
@@ -245,18 +281,18 @@ class Slot:
                         textvariable=var,
                         width=1,
                         height=1,
-                        bg='yellow',
-                        font=("Arial", 15))
+                        bg='red' if cell_text == "!" else 'yellow',
+                        font=("Arial", 8),
+                        anchor='center',
+                        justify='center',
+                        relief='solid'
+                        )
         var.set(f'{cell_text}')
-        text_x = self.x_pos + (50 / 3.5)
-        text_y = self.y_pos + (50 / 4)
+        text_x = self.x_pos + (settings.BOX_SIZE / 3.5)
+        text_y = self.y_pos + (settings.BOX_SIZE / 5)
         text.place(x=text_x, y=text_y)
 
     def button_click(self, _event):
-        # if self.is_clicked:
-        #     return
-        # else:
-        #     self.minesweeper.check_clicked_space((self.row, self.column))
         self.minesweeper.check_clicked_space((self.row, self.column))
         # if self.is_mine:
         #     print('game lost')
@@ -282,7 +318,7 @@ def print_message(msg):
 
 
 if __name__ == "__main__":
-    game = Minesweeper(5)
+    game = Minesweeper(10)
 
     # print('test')
 
