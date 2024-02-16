@@ -14,7 +14,6 @@ class Minesweeper:
         self.neighbor_to_loop = []
         self.neighbor_clicked = []
         self.neighbor_bombs = []
-        self.field_l = None
         self.field = None
         self.dimensions = dimensions
         self.generate_field()
@@ -30,9 +29,6 @@ class Minesweeper:
 
     def generate_field(self):
         self.field = [[0 for i in range(self.dimensions)] for i in range(self.dimensions)]
-        self.field_l = [[chr(97 + i + j) for i in range(self.dimensions)] for j in
-                        range(0, (self.dimensions ** 2), self.dimensions)]
-
         self.root = tk.Tk()
         self.root.geometry(f'{settings.WIDTH}x{settings.HEIGHT}')
         self.root.title("Minesweeper")
@@ -43,7 +39,7 @@ class Minesweeper:
     def generate_objects(self):
         self.top_bar = tk.Frame(
             self.root,
-            bg='blue',
+            bg='azure2',
             width=f'{settings.WIDTH}',
             height=f'{settings.HEIGHT - settings.GAME_HEIGHT}'
         )
@@ -52,14 +48,14 @@ class Minesweeper:
         self.top_text = tk.Label(
             self.top_bar,
             text="Minesweeper",
-            bg='blue',
+            bg='azure2',
             font=("Arial", 25)
         )
         self.top_text.place(x=settings.WIDTH / 2, y=50, anchor="center")
 
         self.game_area = tk.Frame(
             self.root,
-            bg='green',
+            bg='azure3',
             width=f'{settings.GAME_WIDTH}',
             height=f'{settings.GAME_HEIGHT}'
         )
@@ -133,8 +129,6 @@ class Minesweeper:
                     [(self.field[j[0]][j[1]]) for i, j in enumerate(neighbors_pos) if
                      self.field[j[0]][j[1]] != self.field[row][column]]
                 )
-                # neighbors = sorted([(field_l[j[0]][j[1]]) for i, j in enumerate(neighbors_pos) if field_l[j[0]][j[1]] != field_l[row][column]])
-                # print(neighbors)
                 self.neighbor_bombs[row].append(neighbors)
 
     def print_neighbor_bombs(self):
@@ -155,8 +149,8 @@ class Minesweeper:
             bg='white',
             font=("Arial", 60)
         )
-        self.game_lost.place(x=settings.WIDTH / 2,
-                             y=settings.HEIGHT / 2,
+        self.game_lost.place(x=settings.GAME_WIDTH / 2,
+                             y=settings.GAME_HEIGHT / 2,
                              anchor="center")
 
     def is_mine(self, row, column):
@@ -263,7 +257,7 @@ class Slot:
         self.cell = tk.Frame(self.place,
                              width=settings.BOX_SIZE,
                              height=settings.BOX_SIZE,
-                             background='yellow',
+                             background='azure4',
                              borderwidth=1,
                              relief="solid")
         self.cell.place(x=self.x_pos, y=self.y_pos)
@@ -271,7 +265,7 @@ class Slot:
         self.cell.bind("<Button-3>", self.write_on_cell)
 
     def change_color(self, _event=None):
-        self.cell['bg'] = 'blue'
+        self.cell['bg'] = 'black'
 
     def write_on_cell(self, cell_text):
         var = tk.StringVar()
@@ -281,11 +275,11 @@ class Slot:
                         textvariable=var,
                         width=1,
                         height=1,
-                        bg='red' if cell_text == "!" else 'yellow',
-                        font=("Arial", 8),
+                        bg='azure4' if cell_text == "!" else 'black',
+                        fg='white' if cell_text == "!" else 'white',
+                        font=("Arial", 9),
                         anchor='center',
-                        justify='center',
-                        relief='solid'
+                        justify='center'
                         )
         var.set(f'{cell_text}')
         text_x = self.x_pos + (settings.BOX_SIZE / 3.5)
